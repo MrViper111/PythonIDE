@@ -1,0 +1,42 @@
+{
+    "window": {
+        "title": "15-112 Text Editor",
+        "width": 900,
+        "height": 600
+    },
+    "editor": {
+        "tab_size": 4,
+        "double_write": {
+            "(": ")",
+            "[": "]",
+            "{": "}",
+            "\"": "\"",
+            "'": "'"
+        }
+    },
+    "style": {
+        "theme": "dark",
+        "font": "monospace",
+        "font_size": 15,
+        "tab_max_length": 15,
+        "themes": {
+            "dark": {
+                "background": [29, 29, 29],
+                "sidebar_background": [32, 32 ,32],
+                "separator": [42, 42, 42],
+                "text_area": [17, 17, 17],
+                "select_bar": [255, 255, 255],
+                "tooltip_background": [0, 0, 0],
+                "button_background": [0, 0, 0],
+                "file_hover_background": [21, 21, 21],
+                "text": [255, 255, 255]
+            },
+            "light": {
+                "background": "white",
+                "text_area": "gray",
+                "select_bar": [0, 0, 0],
+                "text": [0, 0, 0]
+            }
+        }
+    }
+}
