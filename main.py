@@ -1,10 +1,11 @@
 from cmu_graphics import *
 
 from button.defined.filebutton import FileButton
+from button.defined.filetabbutton import FileTabButton
 from button.defined.folderbutton import FolderButton
 from button.defined.iconbutton import IconButton
 from common.colors import Colors
-from common.asthelper import AstVisitor, ASTHelper
+# from common.asthelper import AstVisitor, ASTHelper
 from common.config import ConfigData, Config
 from common.files import Files
 from common.icons import Icons
@@ -12,6 +13,7 @@ from structures.textarea import TextArea
 
 import os
 
+from structures.textbox import Textbox
 from structures.tooltip import Tooltip
 
 
@@ -53,20 +55,22 @@ def onAppStart(app):
         IconButton(app, app.width - app.scroll_bar_width_real - app.default_icon_width, 4,
                    Icons.RUN, tooltip=Tooltip("Run")),
         IconButton(app, (app.sidebar_width / 2) - app.default_icon_width / 2, 10, Icons.FILE),
-        IconButton(app, (app.sidebar_width - app.default_icon_width) / 2, app.height - (app.default_icon_width * 1.5)*2,
+        IconButton(app, (app.sidebar_width - app.default_icon_width) / 2,
+                   app.height - (app.default_icon_width * 1.5) * 2,
                    Icons.TERMINAL),
         IconButton(app, (app.sidebar_width - app.default_icon_width) / 2, app.height - app.default_icon_width * 1.5,
                    Icons.SETTINGS),
     ]
+    app.file_buttons = []
     app.special_tokens = {"func": set(), "var": set()}
 
     for i, file in enumerate(os.listdir(app.working_path)):
         if os.path.isfile(file):
-            app.buttons.append(FileButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                          f" {file}", app.background_color))
+            app.file_buttons.append(FileButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
+                                               f" {file}", app.background_color))
             continue
-        app.buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                        f"> {file}", app.background_color))
+        app.file_buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
+                                             f"> {file}", app.background_color))
 
 
 def redrawAll(app):
@@ -131,6 +135,16 @@ def redrawAll(app):
         if button.tooltip and button.is_hovered:
             button.draw_tooltip()
 
+    for button in app.file_buttons:
+        button.draw()
+
+    print(app.open_files)
+    for button in app.open_files:
+        button.draw()
+
+    # textbox = Textbox(app, 20, 200, "Enter name...", 90)
+    # textbox.draw()
+
 
 def onMousePress(app, mouseX, mouseY):
     # app.select_bar.handle_click(app, mouseX, mouseY)
@@ -138,18 +152,27 @@ def onMousePress(app, mouseX, mouseY):
     for button in app.buttons:
         button.handle_click(mouseX, mouseY)
 
+    for file_tab_button in app.open_files:
+        file_tab_button.handle_click(mouseX, mouseY)
+
+    for button in app.file_buttons:
+        button.handle_click(mouseX, mouseY)
+
 
 def onMouseMove(app, mouseX, mouseY):
     for button in app.buttons:
+        button.handle_hover(mouseX, mouseY)
+
+    for button in app.file_buttons:
         button.handle_hover(mouseX, mouseY)
 
 
 def onKeyPress(app, key):
     app.textarea.handle_key_press([key])
 
-    ast_rep = ASTHelper.get_ast_rep(Files.rebuild_content(app.textarea.content))
-    app.special_tokens = ASTHelper.load_ast_data(ast_rep)
-    print(app.special_tokens)
+    # ast_rep = ASTHelper.get_ast_rep(Files.rebuild_content(app.textarea.content))
+    # app.special_tokens = ASTHelper.load_ast_data(ast_rep)
+    # print(app.special_tokens)
 
 
 runApp(ConfigData.WINDOW_WIDTH, ConfigData.WINDOW_HEIGHT)

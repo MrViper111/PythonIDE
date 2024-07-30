@@ -1,7 +1,7 @@
 import os
 
 from button.button import Button
-from common.asthelper import ASTHelper
+from button.defined.filetabbutton import FileTabButton
 from common.files import Files
 
 
@@ -15,11 +15,13 @@ class FileButton(Button):
         label = self.label.strip()
         file_content = Files.get_content(os.path.join(self.app.working_path, label))
         parsed_content = Files.parse_content(file_content)
-
         self.app.textarea.content = parsed_content
-        self.app.open_files.append(label)
-        ast_rep = ASTHelper.get_ast_rep(file_content)
-        self.app.special_tokens = ASTHelper.load_ast_data(ast_rep)
+
+        print(self.app.open_files)
+        if label not in self.app.open_files:
+            self.app.open_files.append(FileTabButton(self.app,
+                                                  self.app.file_structure_width + (120 * len(self.app.open_files)),
+                                                  self.app.top_bar_height / 2, label))
 
     def on_hover(self):
         ...
