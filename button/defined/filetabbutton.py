@@ -31,7 +31,8 @@ class FileTabButton(Button):
             if Utils.distance(mouse_x, mouse_y, self.close_x, self.y) < 15:
                 app.open_files.remove(self)
             else:
-                file_content = Files.get_content(os.path.join(self.app.working_path, self.label))
+                app.current_file = os.path.join(self.app.working_path, self.label)
+                file_content = Files.get_content(app.current_file)
                 parsed_content = Files.parse_content(file_content)
                 self.app.textarea.content = parsed_content
 

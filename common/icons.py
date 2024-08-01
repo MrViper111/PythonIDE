@@ -11,6 +11,7 @@ class Icons:
 
     TERMINAL = CMUImage(Image.open(IMG_PATH + "terminal.png"))
     FILE = CMUImage(Image.open(IMG_PATH + "open-folder.png"))
+    SAVE = CMUImage(Image.open(IMG_PATH + "save.png"))
     SETTINGS = CMUImage(Image.open(IMG_PATH + "cogwheel.png"))
     INFO = CMUImage(Image.open(IMG_PATH + "info.png"))
     RUN = CMUImage(Image.open(IMG_PATH + "right-arrow.png"))

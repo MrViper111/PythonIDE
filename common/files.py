@@ -5,6 +5,14 @@ class Files:
         ...
 
     @staticmethod
+    def save(file: str, new_content: str):
+        with open(file, "w") as file:
+            file.seek(0)
+            file.truncate()
+
+            file.write(new_content)
+
+    @staticmethod
     def get_content(file: str) -> str:
         with open(file, "r") as f:
             return f.read()

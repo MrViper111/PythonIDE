@@ -60,7 +60,6 @@ class Button(ABC):
         self.is_hovered = (x1 <= mouse_x <= x2) and (y1 <= mouse_y <= y2)
 
         if self.is_hovered:
-            print("hovering")
             self.on_hover()
 
     @abstractmethod

@@ -13,7 +13,7 @@ import string
 #
 
 
-class TextArea:
+class Terminal:
 
     x: int
     y: int
@@ -22,8 +22,7 @@ class TextArea:
     content: list[list]
     position: int
 
-    def __init__(self, app, x, y, width, height):
-        self.app = app
+    def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
@@ -34,8 +33,6 @@ class TextArea:
         self.text_color = Colors.parseRGB(ConfigData.THEME_DATA["text"])
         self.fill_color = Colors.parseRGB(ConfigData.THEME_DATA["text_area"])
         self.is_selected = False
-        self.code = ""
-        self.token_content = []
 
     def handle_key_press(self, keys: list[str]):
         if not self.is_selected:
@@ -65,15 +62,6 @@ class TextArea:
         elif any(key in char for key in keys for char in string.printable):
             for char in keys:
                 self.content = TextPointer.insert_char(self.content, char)
-
-        self.code = Files.rebuild_content(self.content)
-        self.token_content = parse_code_to_tokens(self.app, self.code, color_map={
-            "keywords": Colors.parseRGB([255, 130, 37]),
-            "variables": Colors.parseRGB([90, 178, 255]),
-            "functions": Colors.parseRGB([229, 210, 131]),
-            "strings": Colors.parseRGB([181, 193, 142]),
-            "comments": "gray"
-        })
 
     def handle_click(self, app, mouse_x, mouse_y):
         x1 = self.x
@@ -113,20 +101,36 @@ class TextArea:
         font_size = ConfigData.FONT_SIZE
         font = ConfigData.FONT
 
+        code = Files.rebuild_content(self.content)
+        token_content = parse_code_to_tokens(code, {
+            "keywords": "orange",
+            "variables": "lightBlue",
+            "functions": "yellow",
+            "strings": "lightGreen",
+            "comments": "gray"
+        })
+        # print(token_content)
+
+        # for line in token_content:
+        #     for token in line:
+        #         if token.label.isspace():
+        #             continue
+        #
+        #         token.label = token.label.strip()
+
         line_height = 20
         char_width = ConfigData.FONT_SIZE * 0.6
 
-        if not app.code_is_invalid:
-            for line_idx, line in enumerate(self.token_content):
-                x = app.file_structure_width + app.line_numbers_width_real + 10
-                y = line_idx * line_height + app.top_bar_height + 20
-                for token in line:
-                    cmu_graphics.drawLabel(token.label, x, y, align="left", font=font, fill=token.color, size=font_size)
-                    cmu_graphics.drawLabel(token.label, x, y, align="left", font=font, fill=token.color, size=font_size)
-                    x += len(token.label) * char_width
-        else:
-            for i, row in enumerate(self.content):
-                y = self.y + (20 * i) + 20
-                line_content = "".join(str(c) for c in row if c != 1)
-                cmu_graphics.drawLabel(line_content, x, y, fill=self.text_color, size=font_size, align="left", font=font)
-                cmu_graphics.drawLabel(line_content, x, y, fill=self.text_color, size=font_size, align="left", font=font)
+        for line_idx, line in enumerate(token_content):
+            x = app.file_structure_width + app.line_numbers_width_real + 10
+            y = line_idx * line_height + app.top_bar_height + 20
+            for token in line:
+                cmu_graphics.drawLabel(token.label, x, y, align="left", font=font, fill=token.color, size=font_size)
+                cmu_graphics.drawLabel(token.label, x, y, align="left", font=font, fill=token.color, size=font_size)
+                x += len(token.label) * char_width
+
+        # for i, row in enumerate(self.content):
+        #     y = self.y + (20 * i) + 20
+        #     line_content = "".join(str(c) for c in row if c != 1)
+        #     cmu_graphics.drawLabel(line_content, x, y, fill=self.text_color, size=font_size, align="left", font=font)
+        #     cmu_graphics.drawLabel(line_content, x, y, fill=self.text_color, size=font_size, align="left", font=font)

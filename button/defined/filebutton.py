@@ -13,15 +13,16 @@ class FileButton(Button):
 
     def on_click(self):
         label = self.label.strip()
-        file_content = Files.get_content(os.path.join(self.app.working_path, label))
+        self.app.current_file = os.path.join(self.app.working_path, self.label).replace(" ", "")
+        print(self.app.current_file)
+        file_content = Files.get_content(self.app.current_file)
         parsed_content = Files.parse_content(file_content)
         self.app.textarea.content = parsed_content
 
-        print(self.app.open_files)
         if label not in self.app.open_files:
             self.app.open_files.append(FileTabButton(self.app,
-                                                  self.app.file_structure_width + (120 * len(self.app.open_files)),
-                                                  self.app.top_bar_height / 2, label))
+                                                     self.app.file_structure_width + (120 * len(self.app.open_files)),
+                                                     self.app.top_bar_height / 2, label))
 
     def on_hover(self):
         ...

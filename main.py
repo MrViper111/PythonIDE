@@ -1,25 +1,25 @@
+from button.defined.terminaliconbutton import TerminalIconButton
 from cmu_graphics import *
 
+from button.defined.directoryiconbutton import DirectoryIconButton
 from button.defined.filebutton import FileButton
-from button.defined.filetabbutton import FileTabButton
 from button.defined.folderbutton import FolderButton
 from button.defined.iconbutton import IconButton
+from button.defined.saveiconbutton import SaveIconButton
 from common.colors import Colors
 # from common.asthelper import AstVisitor, ASTHelper
-from common.config import ConfigData, Config
+from common.config import ConfigData
 from common.files import Files
 from common.icons import Icons
 from structures.textarea import TextArea
 
 import os
 
-from structures.textbox import Textbox
-from structures.tooltip import Tooltip
-
 
 def onAppStart(app):
     # config app
-    app.stepsPerSecond = 0.0001
+    app.stepsPerSecond = 10
+    app.setMaxShapeCount(50000)
 
     # colors
     app.background_color = Colors.parseRGB(ConfigData.THEME_DATA["background"])
@@ -45,32 +45,38 @@ def onAppStart(app):
     app.textarea_height = app.height - app.bottom_bar_height
     app.default_icon_width = 30
 
-    app.textarea = TextArea(app.textarea_x, app.textarea_y, app.textarea_width, app.textarea_height)
+    app.textarea = TextArea(app, app.textarea_x, app.textarea_y, app.textarea_width, app.textarea_height)
 
     # other
     app.working_path = "."
+    app.current_file = ""
     app.open_files = []
-    print(app.width - app.scroll_bar_width_real - app.default_icon_width)
     app.buttons = [
-        IconButton(app, app.width - app.scroll_bar_width_real - app.default_icon_width, 4,
-                   Icons.RUN, tooltip=Tooltip("Run")),
-        IconButton(app, (app.sidebar_width / 2) - app.default_icon_width / 2, 10, Icons.FILE),
-        IconButton(app, (app.sidebar_width - app.default_icon_width) / 2,
-                   app.height - (app.default_icon_width * 1.5) * 2,
-                   Icons.TERMINAL),
+        TerminalIconButton(app, app.width - app.scroll_bar_width_real - app.default_icon_width, 4,
+                           Icons.RUN),
+        DirectoryIconButton(app, (app.sidebar_width / 2) - app.default_icon_width / 2, 10, Icons.FILE),
+        SaveIconButton(app, (app.sidebar_width / 2) - app.default_icon_width / 2, 55, Icons.SAVE),
+        TerminalIconButton(app, (app.sidebar_width - app.default_icon_width) / 2,
+                           app.height - (app.default_icon_width * 1.5) * 2,
+                           Icons.TERMINAL),
         IconButton(app, (app.sidebar_width - app.default_icon_width) / 2, app.height - app.default_icon_width * 1.5,
                    Icons.SETTINGS),
     ]
     app.file_buttons = []
     app.special_tokens = {"func": set(), "var": set()}
+    app.stepsSinceKeyPressed = 0
+    app.code_is_invalid = False
 
-    for i, file in enumerate(os.listdir(app.working_path)):
-        if os.path.isfile(file):
-            app.file_buttons.append(FileButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                               f" {file}", app.background_color))
-            continue
-        app.file_buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                             f"> {file}", app.background_color))
+    try:
+        for i, file in enumerate(os.listdir(app.working_path)):
+            if os.path.isfile(file):
+                app.file_buttons.append(FileButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
+                                                   f" {file}", app.background_color))
+                continue
+            app.file_buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
+                                                 f"> {file}", app.background_color))
+    except:
+        return
 
 
 def redrawAll(app):
@@ -138,7 +144,6 @@ def redrawAll(app):
     for button in app.file_buttons:
         button.draw()
 
-    print(app.open_files)
     for button in app.open_files:
         button.draw()
 
@@ -147,7 +152,7 @@ def redrawAll(app):
 
 
 def onMousePress(app, mouseX, mouseY):
-    # app.select_bar.handle_click(app, mouseX, mouseY)
+    app.textarea.handle_click(app, mouseX, mouseY)
 
     for button in app.buttons:
         button.handle_click(mouseX, mouseY)
@@ -168,11 +173,38 @@ def onMouseMove(app, mouseX, mouseY):
 
 
 def onKeyPress(app, key):
+    app.stepsSinceKeyPressed = 0
     app.textarea.handle_key_press([key])
+
+    print(app.textarea.content)
+    print(app.textarea.token_content)
 
     # ast_rep = ASTHelper.get_ast_rep(Files.rebuild_content(app.textarea.content))
     # app.special_tokens = ASTHelper.load_ast_data(ast_rep)
     # print(app.special_tokens)
+
+
+def onKeyRelease(app, key):
+    app.stepsSinceKeyPressed = 0
+
+
+# def onKeyHold(app, keys, modifiers):
+#     if app.stepsSinceKeyPressed < app.stepsPerSecond * 1.1:
+#         return
+#
+#     app.textarea.handle_key_press(keys)
+#
+#     if "meta" in modifiers and "s" in keys:
+#         try:
+#             Files.save(app.current_file, Files.rebuild_content(app.textarea.content))
+#             print("File saved!")
+#         except FileNotFoundError:
+#             print("No such file exists!")
+
+
+
+def onStep(app):
+    app.stepsSinceKeyPressed += 1
 
 
 runApp(ConfigData.WINDOW_WIDTH, ConfigData.WINDOW_HEIGHT)
