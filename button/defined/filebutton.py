@@ -3,6 +3,8 @@ import os
 from button.button import Button
 from button.defined.filetabbutton import FileTabButton
 from common.files import Files
+from common.config import ConfigData
+from common.asthelper import *
 
 
 class FileButton(Button):
@@ -14,10 +16,12 @@ class FileButton(Button):
     def on_click(self):
         label = self.label.strip()
         self.app.current_file = os.path.join(self.app.working_path, self.label).replace(" ", "")
-        print(self.app.current_file)
         file_content = Files.get_content(self.app.current_file)
         parsed_content = Files.parse_content(file_content)
         self.app.textarea.content = parsed_content
+
+        code = Files.rebuild_content(self.app.textarea.content)
+        self.app.textarea.token_content = parse_code_to_tokens(self.app, code, ConfigData.HIGHLIGTING)
 
         if label not in self.app.open_files:
             self.app.open_files.append(FileTabButton(self.app,

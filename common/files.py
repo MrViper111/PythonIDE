@@ -1,10 +1,6 @@
 class Files:
 
     @staticmethod
-    def prompt_selection() -> str:
-        ...
-
-    @staticmethod
     def save(file: str, new_content: str):
         with open(file, "w") as file:
             file.seek(0)

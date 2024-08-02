@@ -9,10 +9,6 @@ from common.asthelper import *
 import string
 
 
-# store stuff another way
-#
-
-
 class TextArea:
 
     x: int
@@ -34,7 +30,6 @@ class TextArea:
         self.text_color = Colors.parseRGB(ConfigData.THEME_DATA["text"])
         self.fill_color = Colors.parseRGB(ConfigData.THEME_DATA["text_area"])
         self.is_selected = False
-        self.code = ""
         self.token_content = []
 
     def handle_key_press(self, keys: list[str]):
@@ -66,14 +61,8 @@ class TextArea:
             for char in keys:
                 self.content = TextPointer.insert_char(self.content, char)
 
-        self.code = Files.rebuild_content(self.content)
-        self.token_content = parse_code_to_tokens(self.app, self.code, color_map={
-            "keywords": Colors.parseRGB([255, 130, 37]),
-            "variables": Colors.parseRGB([90, 178, 255]),
-            "functions": Colors.parseRGB([229, 210, 131]),
-            "strings": Colors.parseRGB([181, 193, 142]),
-            "comments": "gray"
-        })
+        code = Files.rebuild_content(self.content)
+        self.token_content = parse_code_to_tokens(self.app, code, ConfigData.HIGHLIGTING)
 
     def handle_click(self, app, mouse_x, mouse_y):
         x1 = self.x

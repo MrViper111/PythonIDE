@@ -1,6 +1,8 @@
 import json
 import os
 
+from common.colors import Colors
+
 
 class Config:
 
@@ -18,12 +20,12 @@ class ConfigData:
     WINDOW_TITLE = DATA["window"]["title"]
     WINDOW_HEIGHT = DATA["window"]["height"]
     WINDOW_WIDTH = DATA["window"]["width"]
-
     TAB_SIZE = DATA["editor"]["tab_size"]
-    DOUBLE_WRITE = DATA["editor"]["double_write"]
-
     THEME = DATA["style"]["theme"]
     FONT = DATA["style"]["font"]
     FONT_SIZE = DATA["style"]["font_size"]
     THEMES = DATA["style"]["themes"]
     THEME_DATA = THEMES[THEME]
+    HIGHLIGHTING_RAW = DATA["style"]["highlighting"]
+    HIGHLIGTING = {key:Colors.parseRGB(value) for key, value in HIGHLIGHTING_RAW.items()}
+

@@ -5,20 +5,20 @@
         "height": 600
     },
     "editor": {
-        "tab_size": 4,
-        "double_write": {
-            "(": ")",
-            "[": "]",
-            "{": "}",
-            "\"": "\"",
-            "'": "'"
-        }
+        "tab_size": 4
     },
     "style": {
         "theme": "dark",
         "font": "monospace",
         "font_size": 15,
         "tab_max_length": 15,
+        "highlighting": {
+            "keywords": [255, 130, 37],
+            "variables": [90, 178, 255],
+            "functions": [229, 210, 131],
+            "strings": [187, 154, 177],
+            "comments": [117, 134, 148]
+        },
         "themes": {
             "dark": {
                 "background": [29, 29, 29],
@@ -30,12 +30,6 @@
                 "button_background": [0, 0, 0],
                 "file_hover_background": [21, 21, 21],
                 "text": [255, 255, 255]
-            },
-            "light": {
-                "background": "white",
-                "text_area": "gray",
-                "select_bar": [0, 0, 0],
-                "text": [0, 0, 0]
             }
         }
     }

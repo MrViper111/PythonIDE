@@ -3,6 +3,8 @@ import tokenize
 import io
 import keyword
 
+from common.colors import Colors
+
 
 # References:
 # - https://docs.python.org/3/library/ast.html
@@ -52,27 +54,6 @@ class CodeTokenizer(ast.NodeVisitor):
             self.app.code_is_invalid = False
         except tokenize.TokenError as e:
             self.app.code_is_invalid = True
-            start = e.args[1]
-            error_token = code[start[1]:]
-            print(f"Token error {start[0]} col {start[1]}: '{error_token}'")
-            tokens = self.handle_error_token(code, start)
-        return tokens
-
-    def handle_error_token(self, code, start):
-        tokens = []
-        error_start = start[1]
-
-        # maybe try to tokenize up to error
-        try:
-            valid_tokens = list(tokenize.generate_tokens(io.StringIO(code[:error_start]).readline))
-            tokens.extend(valid_tokens)
-        except tokenize.TokenError:
-            pass
-
-        # add the error token
-        error_token = code[error_start:error_start + 1]  # get the stupid character
-        tokens.append((tokenize.ERRORTOKEN, error_token, start, start, code))
-
         return tokens
 
     def analyze_ast(self, code):

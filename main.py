@@ -6,8 +6,8 @@ from button.defined.filebutton import FileButton
 from button.defined.folderbutton import FolderButton
 from button.defined.iconbutton import IconButton
 from button.defined.saveiconbutton import SaveIconButton
+from button.defined.settingsiconbutton import SettingsIconButton
 from common.colors import Colors
-# from common.asthelper import AstVisitor, ASTHelper
 from common.config import ConfigData
 from common.files import Files
 from common.icons import Icons
@@ -51,15 +51,13 @@ def onAppStart(app):
     app.working_path = "."
     app.current_file = ""
     app.open_files = []
-    app.buttons = [
-        TerminalIconButton(app, app.width - app.scroll_bar_width_real - app.default_icon_width, 4,
-                           Icons.RUN),
+    app.buttons = [ 
         DirectoryIconButton(app, (app.sidebar_width / 2) - app.default_icon_width / 2, 10, Icons.FILE),
         SaveIconButton(app, (app.sidebar_width / 2) - app.default_icon_width / 2, 55, Icons.SAVE),
         TerminalIconButton(app, (app.sidebar_width - app.default_icon_width) / 2,
                            app.height - (app.default_icon_width * 1.5) * 2,
                            Icons.TERMINAL),
-        IconButton(app, (app.sidebar_width - app.default_icon_width) / 2, app.height - app.default_icon_width * 1.5,
+        SettingsIconButton(app, (app.sidebar_width - app.default_icon_width) / 2, app.height - app.default_icon_width * 1.5,
                    Icons.SETTINGS),
     ]
     app.file_buttons = []
@@ -67,14 +65,15 @@ def onAppStart(app):
     app.stepsSinceKeyPressed = 0
     app.code_is_invalid = False
 
+    clean_ls = [file for file in os.listdir(app.working_path) if not file.startswith(".")]
     try:
-        for i, file in enumerate(os.listdir(app.working_path)):
+        for i, file in enumerate(clean_ls):
             if os.path.isfile(file):
                 app.file_buttons.append(FileButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                                   f" {file}", app.background_color))
+                                                f" {file}", app.background_color))
                 continue
             app.file_buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                                 f"> {file}", app.background_color))
+                                                f"> {file}", app.background_color))
     except:
         return
 
@@ -106,6 +105,18 @@ def redrawAll(app):
         starting_selector_offset_x + 10 + (ConfigData.FONT_SIZE * 0.6) * selector_location_x,
         starting_selector_offset_y + selector_location_y * 20 - 10,
         fill=app.select_bar_color
+    )
+
+    # drawing current line rectangle
+    cmu_graphics.drawRect(
+        app.file_structure_width,
+        app.top_bar_height + selector_location_y * 20 + 10,
+        app.width - app.file_structure_width,
+        20,
+        fill="gray",
+        opacity=5,
+        border="gray",
+        borderWidth=1
     )
 
     # sidebar
@@ -147,9 +158,6 @@ def redrawAll(app):
     for button in app.open_files:
         button.draw()
 
-    # textbox = Textbox(app, 20, 200, "Enter name...", 90)
-    # textbox.draw()
-
 
 def onMousePress(app, mouseX, mouseY):
     app.textarea.handle_click(app, mouseX, mouseY)
@@ -176,31 +184,16 @@ def onKeyPress(app, key):
     app.stepsSinceKeyPressed = 0
     app.textarea.handle_key_press([key])
 
-    print(app.textarea.content)
-    print(app.textarea.token_content)
-
-    # ast_rep = ASTHelper.get_ast_rep(Files.rebuild_content(app.textarea.content))
-    # app.special_tokens = ASTHelper.load_ast_data(ast_rep)
-    # print(app.special_tokens)
-
 
 def onKeyRelease(app, key):
     app.stepsSinceKeyPressed = 0
 
 
-# def onKeyHold(app, keys, modifiers):
-#     if app.stepsSinceKeyPressed < app.stepsPerSecond * 1.1:
-#         return
-#
-#     app.textarea.handle_key_press(keys)
-#
-#     if "meta" in modifiers and "s" in keys:
-#         try:
-#             Files.save(app.current_file, Files.rebuild_content(app.textarea.content))
-#             print("File saved!")
-#         except FileNotFoundError:
-#             print("No such file exists!")
+def onKeyHold(app, keys, modifiers):
+    if app.stepsSinceKeyPressed < app.stepsPerSecond * 1.1:
+        return
 
+    app.textarea.handle_key_press(keys)
 
 
 def onStep(app):

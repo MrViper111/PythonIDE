@@ -18,7 +18,6 @@ class DirectoryIconButton(Button):
         self.size = size
 
     def on_click(self):
-        print("lets go you clicked your cool little button")
         new_directory = self.app.getTextInput("Enter directory")
 
         if not new_directory:
@@ -27,14 +26,15 @@ class DirectoryIconButton(Button):
         self.app.working_path = new_directory
 
         self.app.file_buttons.clear()
+        clean_ls = [file for file in os.listdir(app.working_path) if not file.startswith(".")]
         try:
-            for i, file in enumerate(os.listdir(app.working_path)):
+            for i, file in enumerate(clean_ls):
                 if os.path.isfile(file):
                     app.file_buttons.append(FileButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                                       f" {file}", app.background_color))
-                    continue
-            app.file_buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
-                                                 f"> {file}", app.background_color))
+                                                    f" {file}", app.background_color))
+                else:
+                    app.file_buttons.append(FolderButton(app, app.sidebar_width + 18, 40 + 25 * i, app.file_structure_width * 0.6,
+                                                    f"> {file}", app.background_color))
         except:
             return
 

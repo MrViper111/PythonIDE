@@ -1,6 +1,7 @@
 import os
 
 from button.button import Button
+from button.defined.filebutton import FileButton
 
 
 class FolderButton(Button):
@@ -10,7 +11,21 @@ class FolderButton(Button):
         self.old_color = self.color
 
     def on_click(self):
-        label = self.label.removeprefix("> ")
+        label = self.label.removeprefix(">").strip()
+        self.app.working_path = str(label)
+
+        self.app.file_buttons.clear()
+        clean_ls = [file for file in os.listdir(self.app.working_path) if not file.startswith(".")]
+        try:
+            for i, file in enumerate(clean_ls):
+                if os.path.isfile(file):
+                    self.app.file_buttons.append(FileButton(self.app, self.app.sidebar_width + 18, 40 + 25 * i, self.app.file_structure_width * 0.6,
+                                                    f" {file}", self.app.background_color))
+                else:
+                    self.app.file_buttons.append(FolderButton(self.app, self.app.sidebar_width + 18, 40 + 25 * i,self.app.file_structure_width * 0.6,
+                                                    f"> {file}", self.app.background_color))
+        except:
+            return
 
     def on_hover(self):
         ...
